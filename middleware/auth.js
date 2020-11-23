@@ -1,15 +1,20 @@
 const jwt = require("jsonwebtoken");
-
+const SECRET_TOKEN = require("../config/config");
 module.exports = function (req, res, next) {
-  const token = req.header("token");
-  if (!token) return res.status(401).json({ message: "Auth Error" });
+  const authHeader = req.headers.authorization;
 
-  try {
-    const decoded = jwt.verify(token, "randomString");
-    req.user = decoded.user;
-    next();
-  } catch (e) {
-    console.error(e);
-    res.status(500).send({ message: "Invalid Token" });
+  if (authHeader) {
+    const token = authHeader.split(" ")[1];
+    console.log(SECRET_TOKEN.SECRET_TOKEN);
+    jwt.verify(token, SECRET_TOKEN.SECRET_TOKEN, (err, user) => {
+      if (err) {
+        console.log(err);
+        return res.sendStatus(403);
+      }
+      req.user = user;
+      next();
+    });
+  } else {
+    res.sendStatus(401);
   }
 };
