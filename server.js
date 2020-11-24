@@ -68,16 +68,19 @@ app.post("/signup", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
   try {
     let user = await User.findOne({
       username,
     });
+
     if (!user)
       return res.status(400).json({
         message: "User Not Exist",
       });
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch)
       return res.status(400).json({
         message: "Incorrect Password !",
